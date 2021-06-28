@@ -42,11 +42,11 @@ def find_latent(G, annotation, steps):
     g_synthesis = G.synthesis
 
     ### experimental
-    latents_init = g_mapping.w_avg.detach().clone().unsqueeze(0)
-    std = torch.std(latents_init.cpu())
-    r = torch.rand(latents_init.size()) * 2 - 1
-    r = r * std
-    latents_init = latents_init.cuda() + r.cuda()
+    #latents_init = g_mapping.w_avg.detach().clone().unsqueeze(0)
+    #std = torch.std(latents_init.cpu())
+    #r = torch.rand(latents_init.size()) * 2 - 1
+    #r = r * std
+    #latents_init = latents_init.cuda() + r.cuda()
     ###
 
     ### experimental

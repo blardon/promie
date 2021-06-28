@@ -176,7 +176,9 @@ def make_visualization():
     #######################################
     # Image generation loop
     #######################################
-    for i_frame, dlatent in enumerate(chroma_weighted_ws):
+    print(f"Saving {TOTAL_FRAMES} frames...")
+    for i_frame, dlatent in enumerate(tqdm(chroma_weighted_ws)):
         img = generator.generate_from_dlatent(G, dlatent, noise_mode="const")
         generator.save_img(img, i_frame, OUTPUT_PATH)
+    print(f"Frame generation done into directory: {OUTPUT_PATH}")
     
