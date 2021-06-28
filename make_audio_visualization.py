@@ -161,8 +161,7 @@ def make_visualization():
     for frame_index, w in enumerate(chroma_weighted_ws):
         chroma_weighted_ws[frame_index] = onsets_high[frame_index] * final_ws[frame_index][-4] + (1 - onsets_high[frame_index]) * chroma_weighted_ws[frame_index]
         chroma_weighted_ws[frame_index] = onsets_low[frame_index] * final_ws[frame_index][-7] + (1 - onsets_low[frame_index]) * chroma_weighted_ws[frame_index]
-    print(chroma_weighted_ws.size())
-
+    chroma_weighted_ws = audio_processing.gaussian_filter(chroma_weighted_ws, 2, 0.2)
     #chromagram_weighted_ws = latents.chromagram_weight_latents(chromagram, ws)
     #chromagram_weighted_ws = audio_processing.gaussian_filter(chromagram_weighted_ws, 4)
 
