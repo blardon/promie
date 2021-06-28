@@ -9,7 +9,7 @@ import helper
 
 #AUDIO_FILE = "mixed_moods-calm-happy-tension.wav"
 AUDIO_FILE = "mixed_moods-calm-happy-tension.wav"
-NETWORK_PKL = "WikiArt_uncond.pkl"
+NETWORK_PKL = "model.pkl"
 STEPS = 500
 FAST_MODE = True # only generates 2 latents and interpolates to create {NOTES} latents
 OUTPUT_PATH = "out"
