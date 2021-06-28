@@ -8,7 +8,11 @@ import numpy as np
 from PIL import Image
 import legacy
 import dnnlib
-from tqdm import tqdm
+
+try:
+    from tqdm.notebook import tqdm
+except:
+    from tqdm import tqdm
 
 #from stylegan_models import g_all, g_synthesis, g_mapping
 

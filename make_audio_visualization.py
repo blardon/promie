@@ -7,7 +7,11 @@ import mood_latents
 import torch
 import helper
 import os
-from tqdm import tqdm
+
+try:
+    from tqdm.notebook import tqdm
+except:
+    from tqdm import tqdm
 
 AUDIO_FILE = "audio.wav"
 NETWORK_PKL = "model.pkl"
@@ -35,7 +39,7 @@ def make_visualization():
     # Load StyleGAN Generator
     #######################################
     G = generator.get_generator(NETWORK_PKL)
-
+    G.synthesis.eval()
     #######################################
     # Load audio file
     # Returns: audio tensor, audio sampling rate
