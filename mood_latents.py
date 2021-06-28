@@ -78,7 +78,7 @@ def find_latent(G, annotation, steps):
 
     best_loss = 1000
     best_latent = None
-    for i in range(steps):
+    for i in tqdm(range(steps)):
         dlatents = latents.repeat(1,18,1)
         img = g_synthesis(dlatents)
 
@@ -92,9 +92,5 @@ def find_latent(G, annotation, steps):
         if num_loss < best_loss:
             best_loss = num_loss
             best_latent = dlatents.clone().detach()
-
-        if i % LOG_FREQ == 0:
-            print(f'Step {i}')
-            print(f'Loss {loss.data.cpu().numpy()[0][0]}')
 
     return best_latent.cpu()

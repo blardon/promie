@@ -1,0 +1,3 @@
+import make_audio_visualization
+
+make_audio_visualization.make_visualization()

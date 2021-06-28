@@ -7,10 +7,12 @@ import mood_latents
 import torch
 import helper
 import os
+from tqdm import tqdm
+
 AUDIO_FILE = "audio.wav"
 NETWORK_PKL = "model.pkl"
 STEPS = 500
-FAST_MODE = True # only generates 2 latents and interpolates to create {NOTES} latents
+FAST_MODE = False # only generates 2 latents and interpolates to create {NOTES} latents
 OUTPUT_PATH = "out"
 NOTES = 12
 FPS = 30
@@ -58,20 +60,24 @@ def make_visualization():
     for annotation, time_until in annotations:
         if annotation in annotation_latents.keys():
             continue
-        print(f"Finding dlatents for annotation: {annotation}...")
         ### find latents
         ws = None
         #ws = latents.generate_random_wlatents(G, NOTES)
         
         if FAST_MODE:
+            print(f"Finding 2 dlatents with {STEPS} steps each for annotation: {annotation}...")
             w1 = mood_latents.find_latent(G, annotation, STEPS)
             w2 = mood_latents.find_latent(G, annotation, STEPS)
             ws = latents.interpolate_dlatents(w1, w2, NOTES)
         else:
-            ws = mood_latents.find_latent(G, annotation, STEPS)
-            for i in range(NOTES-1):
+            print(f"Finding {NOTES} (num notes) dlatents with {STEPS} steps each for annotation: {annotation}...")
+            ws = None
+            for i in tqdm(range(NOTES)):
                 w = mood_latents.find_latent(G, annotation, STEPS)
-                ws = torch.cat((ws, w), 0)
+                if ws is None:
+                    ws = w
+                else:
+                    ws = torch.cat((ws, w), 0)
         
         print(f"Finding dlatents for annotation: {annotation} done.")
         annotation_latents[annotation] = ws
