@@ -12,9 +12,7 @@ from tqdm import tqdm
 
 #from stylegan_models import g_all, g_synthesis, g_mapping
 
-network_pkl = "faces.pkl"
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 clip_model, clip_preprocess = clip.load("ViT-B/32", device=device)
 
 #g_synthesis.eval()
