@@ -10,7 +10,7 @@ import helper
 #AUDIO_FILE = "mixed_moods-calm-happy-tension.wav"
 AUDIO_FILE = "mixed_moods-calm-happy-tension.wav"
 NETWORK_PKL = "WikiArt_uncond.pkl"
-STEPS = 250
+STEPS = 500
 FAST_MODE = True # only generates 2 latents and interpolates to create {NOTES} latents
 OUTPUT_PATH = "out"
 NOTES = 12
@@ -18,7 +18,7 @@ FPS = 30
 FADE_TIME_BETWEEN_ANNOTATIONS = 2 # in seconds
 annotations = [
     #("semantic describing the desired mood or content", ending time of annotation in seconds)
-    ("A painting of a calm place", 15.25),
+    ("A painting of an iceberg", 15.25),
     ("A painting of hell", 30.33),
     ("A painting of a calm place", -1)
 ]
@@ -55,8 +55,8 @@ for annotation, time_until in annotations:
     print(f"Finding dlatents for annotation: {annotation}...")
     ### find latents
     ws = None
-    ws = latents.generate_random_wlatents(G, NOTES)
-    """
+    #ws = latents.generate_random_wlatents(G, NOTES)
+    
     if FAST_MODE:
         w1 = mood_latents.find_latent(annotation, STEPS)
         w2 = mood_latents.find_latent(annotation, STEPS)
@@ -66,14 +66,14 @@ for annotation, time_until in annotations:
         for i in range(NOTES-1):
             w = mood_latents.find_latent(annotation, STEPS)
             ws = torch.cat((ws, w), 0)
-    """
+    
     print(f"Finding dlatents for annotation: {annotation} done.")
     annotation_latents[annotation] = ws
 
-    #for i_w, w in enumerate(ws):
-    #    img = generator.generate_from_dlatent(G, w, noise_mode="const")
-    #    annotation_f = annotation.replace(" ", "_")
-    #    generator.save_img(img, f"baseimage_{annotation_f}_{i_w}", "base_gens")
+    for i_w, w in enumerate(ws):
+        img = generator.generate_from_dlatent(G, w, noise_mode="const")
+        annotation_f = annotation.replace(" ", "_")
+        generator.save_img(img, f"baseimage_{annotation_f}_{i_w}", "base_gens")
 
 #ws = mood_latents.find_latent("A painting of a calm place")
 #for i in range(NOTES-1):

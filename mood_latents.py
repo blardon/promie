@@ -10,15 +10,15 @@ import legacy
 import dnnlib
 from tqdm import tqdm
 
-from stylegan_models import g_all, g_synthesis, g_mapping
+#from stylegan_models import g_all, g_synthesis, g_mapping
 
 network_pkl = "faces.pkl"
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 clip_model, clip_preprocess = clip.load("ViT-B/32", device=device)
 
-g_synthesis.eval()
-g_synthesis.to(device)
+#g_synthesis.eval()
+#g_synthesis.to(device)
 
 def tensor_to_pil_img(img):
     img = (img.clamp(-1, 1) + 1) / 2.0
@@ -38,7 +38,10 @@ LR = 0.01
 LOG_FREQ = 25
 STEPS = 450
 
-def find_latent(annotation, steps):
+def find_latent(G, annotation, steps):
+
+    g_mapping = G.mapping
+    g_synthesis = G.synthesis
 
     ### experimental
     latents_init = g_mapping.w_avg.detach().clone().unsqueeze(0)
