@@ -17,6 +17,12 @@ OUTPUT_PATH = "out"
 NOTES = 12
 FPS = 30
 FADE_TIME_BETWEEN_ANNOTATIONS = 2 # in seconds
+
+ONSETS_LOW_FMIN = 0
+ONSETS_LOW_FMAX = 200
+ONSETS_HIGH_FMIN = 500
+ONSETS_HIGH_FMAX = 20000
+
 annotations = [
     #("semantic describing the desired mood or content", ending time of annotation in seconds)
     ("A painting of an iceberg", 15.25),
@@ -49,13 +55,9 @@ def make_visualization():
     print(f"Length: {AUDIO_LENGTH_SECONDS}s\n")
 
     #######################################
-    # Generate N random latents
+    # Find N latents according to entered annotation
     # N = number of notes in the chromagram (typically 7 - 12)
     #######################################
-    #ws = latents.generate_random_wlatents(G, NOTES)
-
-    #w1 = mood_latents.find_latent("A painting of a calm place")
-    #w2 = mood_latents.find_latent("A painting of a calm place")
     annotation_latents = {}
     for annotation, time_until in annotations:
         if annotation in annotation_latents.keys():
@@ -87,27 +89,15 @@ def make_visualization():
             annotation_f = annotation.replace(" ", "_")
             generator.save_img(img, f"baseimage_{annotation_f}_{i_w}", "base_gens")
 
-    #ws = mood_latents.find_latent("A painting of a calm place")
-    #for i in range(NOTES-1):
-    #    w = mood_latents.find_latent("A painting of a calm place")
-    #    ws = torch.cat((ws, w), 0)
-    #    print(ws.size())
-    #ws = latents.interpolate_dlatents(w1, w2, NOTES)
-
-
     #######################################
     # Create onsets of audio (representation drums and kicks of audio)
-    # for percussive part of audio, percussive later
+    # for percussive part of audio, harmonic later
     #######################################
-    onsets_low = audio_processing.onsets(audio, sampling_rate, TOTAL_FRAMES, fmax=200, smooth=5, power=2)
-    onsets_high = audio_processing.onsets(audio, sampling_rate, TOTAL_FRAMES, fmin=500, smooth=5, power=2)
-    # expand onsets to latent shape
-    #onsets_low = onsets_low[:, None, None]
-    #onsets_high = onsets_high[:, None, None]
+    onsets_low = audio_processing.onsets(audio, sampling_rate, TOTAL_FRAMES, fmin=ONSETS_LOW_FMIN, fmax=ONSETS_LOW_FMAX, smooth=5, power=2)
+    onsets_high = audio_processing.onsets(audio, sampling_rate, TOTAL_FRAMES, fmin=ONSETS_HIGH_FMIN, fmax=ONSETS_HIGH_FMAX, smooth=5, power=2)
 
     #plots.plot_simple_signal(onsets_low, "onsets_low", "test", "test")
     #plots.plot_simple_signal(onsets_high, "onsets_high", "test", "test")
-
 
     #######################################
     # Create chromagram of audio (representation of the pitch levels of audio)
@@ -118,8 +108,8 @@ def make_visualization():
     #plots.plot_chromagram(raw, NOTES)
 
     #######################################
-    # Weight the generated latents by the chromgram of the audio (extends number of latents to TOTAL_FRAMES)
-    # gaussian filter applied to smooth transitions
+    # Build base sequence of latents of annotations
+    # and weight/modulate sequence by chromagram and onsets
     #######################################
     frame_annotations = helper.get_frame_annotation_dict(FPS, annotations, FADE_TIME_BETWEEN_ANNOTATIONS, TOTAL_FRAMES)
     final_ws = None
@@ -132,12 +122,6 @@ def make_visualization():
         ws_for_annotation = annotation_latents[annotation].detach().clone().unsqueeze(0)
         annotation_length = to_frame - from_frame + 1
         ws_for_annotation = ws_for_annotation.repeat(annotation_length, 1, 1, 1)
-        #chromagram_weighted_ws = latents.chromagram_weight_latents(chromagram[from_frame:to_frame+1], ws_for_annotation)
-        #chromagram_weighted_ws = audio_processing.gaussian_filter(chromagram_weighted_ws, 4)
-
-        #chromagram_weighted_ws = onsets_high[from_frame:to_frame+1] * ws_for_annotation[[-4]] + (1 - onsets_high[from_frame:to_frame+1]) * chromagram_weighted_ws
-        #chromagram_weighted_ws = onsets_low[from_frame:to_frame+1] * ws_for_annotation[[-7]] + (1 - onsets_low[from_frame:to_frame+1]) * chromagram_weighted_ws
-        #chromagram_weighted_ws = audio_processing.gaussian_filter(chromagram_weighted_ws, 2, causal=0.2)
 
         if final_ws is None:
             final_ws = ws_for_annotation
@@ -162,17 +146,7 @@ def make_visualization():
         chroma_weighted_ws[frame_index] = onsets_high[frame_index] * final_ws[frame_index][-4] + (1 - onsets_high[frame_index]) * chroma_weighted_ws[frame_index]
         chroma_weighted_ws[frame_index] = onsets_low[frame_index] * final_ws[frame_index][-7] + (1 - onsets_low[frame_index]) * chroma_weighted_ws[frame_index]
     chroma_weighted_ws = audio_processing.gaussian_filter(chroma_weighted_ws, 2, 0.2)
-    #chromagram_weighted_ws = latents.chromagram_weight_latents(chromagram, ws)
-    #chromagram_weighted_ws = audio_processing.gaussian_filter(chromagram_weighted_ws, 4)
-
-    #######################################
-    # Modulate latents by onsets
-    #######################################
-    #chromagram_weighted_ws = onsets_high * ws[[-4]] + (1 - onsets_high) * chromagram_weighted_ws
-    #chromagram_weighted_ws = onsets_low * ws[[-7]] + (1 - onsets_low) * chromagram_weighted_ws
-
-    #chromagram_weighted_ws = audio_processing.gaussian_filter(chromagram_weighted_ws, 2, causal=0.2)
-
+    
     #######################################
     # Image generation loop
     #######################################
