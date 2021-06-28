@@ -64,13 +64,13 @@ def make_visualization():
         #ws = latents.generate_random_wlatents(G, NOTES)
         
         if FAST_MODE:
-            w1 = mood_latents.find_latent(annotation, STEPS)
-            w2 = mood_latents.find_latent(annotation, STEPS)
+            w1 = mood_latents.find_latent(G, annotation, STEPS)
+            w2 = mood_latents.find_latent(G, annotation, STEPS)
             ws = latents.interpolate_dlatents(w1, w2, NOTES)
         else:
-            ws = mood_latents.find_latent(annotation, STEPS)
+            ws = mood_latents.find_latent(G, annotation, STEPS)
             for i in range(NOTES-1):
-                w = mood_latents.find_latent(annotation, STEPS)
+                w = mood_latents.find_latent(G, annotation, STEPS)
                 ws = torch.cat((ws, w), 0)
         
         print(f"Finding dlatents for annotation: {annotation} done.")
