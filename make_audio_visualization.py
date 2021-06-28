@@ -7,11 +7,7 @@ import mood_latents
 import torch
 import helper
 import os
-
-try:
-    from tqdm.notebook import tqdm
-except:
-    from tqdm import tqdm
+from tqdm.auto import tqdm
 
 AUDIO_FILE = "audio.wav"
 NETWORK_PKL = "model.pkl"

@@ -8,11 +8,7 @@ import numpy as np
 from PIL import Image
 import legacy
 import dnnlib
-
-try:
-    from tqdm.notebook import tqdm
-except:
-    from tqdm import tqdm
+from tqdm.auto import tqdm
 
 #from stylegan_models import g_all, g_synthesis, g_mapping
 
@@ -82,7 +78,7 @@ def find_latent(G, annotation, steps):
 
     best_loss = 1000
     best_latent = None
-    for i in tqdm(range(steps)):
+    for i in tqdm(range(steps), leave=False):
         dlatents = latents.repeat(1,18,1)
         img = g_synthesis(dlatents)
 
