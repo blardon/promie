@@ -6,7 +6,7 @@ import plots
 import mood_latents
 import torch
 import helper
-
+import os
 AUDIO_FILE = "audio.wav"
 NETWORK_PKL = "model.pkl"
 STEPS = 500
@@ -21,6 +21,13 @@ annotations = [
     ("A painting of hell", 30.33),
     ("A painting of a calm place", -1)
 ]
+audio_processing.SMF = FPS / 30
+if not os.path.exists(OUTPUT_PATH):
+    os.makedirs(OUTPUT_PATH)
+if not os.path.exists("base_gens"):
+    os.makedirs("base_gens")
+
+
 def make_visualization():
     #######################################
     # Load StyleGAN Generator
